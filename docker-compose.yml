@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: zerotouch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zerotouch
+      POSTGRES_USER: zerotouch
+      POSTGRES_PASSWORD: zerotouch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  dashboard:
+    build:
+      context: ./dashboard
+    container_name: zerotouch-dashboard
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: zerotouch
+      POSTGRES_USER: zerotouch
+      POSTGRES_PASSWORD: zerotouch
+    ports:
+      - "8501:8501"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
