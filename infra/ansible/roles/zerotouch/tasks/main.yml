@@ -1,0 +1,57 @@
+---
+- name: Clone ZeroTouch repo
+  git:
+    repo: https://github.com/zerotouch-ai/zerotouch.git
+    dest: /home/ubuntu/zerotouch
+    version: dev
+    force: yes
+  become_user: ubuntu
+
+- name: Copy .env file to instance
+  copy:
+    src: "{{ playbook_dir }}/../.env"
+    dest: /home/ubuntu/zerotouch/.env
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+
+- name: Pull all Docker images
+  shell: docker-compose pull
+  args:
+    chdir: /home/ubuntu/zerotouch
+  become_user: ubuntu
+
+- name: Build custom Docker images
+  shell: docker-compose build
+  args:
+    chdir: /home/ubuntu/zerotouch
+  become_user: ubuntu
+
+- name: Start all services
+  shell: docker-compose up -d
+  args:
+    chdir: /home/ubuntu/zerotouch
+  become_user: ubuntu
+
+- name: Wait for Ollama to be ready
+  wait_for:
+    host: localhost
+    port: 11434
+    timeout: 60
+
+- name: Pull Mistral model into Ollama
+  shell: docker exec ollama ollama pull mistral:7b-instruct-v0.3
+  become_user: ubuntu
+  async: 600
+  poll: 30
+
+- name: Verify all containers are running
+  shell: docker-compose ps
+  args:
+    chdir: /home/ubuntu/zerotouch
+  register: compose_status
+  become_user: ubuntu
+
+- name: Print container status
+  debug:
+    msg: "{{ compose_status.stdout }}"
