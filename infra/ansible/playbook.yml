@@ -1,0 +1,29 @@
+---
+- name: ZeroTouch — Full Server Setup
+  hosts: zerotouch
+  become: yes
+
+  vars:
+    project_dir: /home/ubuntu/zerotouch
+
+  pre_tasks:
+    - name: Print server info
+      debug:
+        msg: "Setting up ZeroTouch on {{ ansible_host }} ({{ ansible_distribution }} {{ ansible_distribution_version }})"
+
+  roles:
+    - docker
+    - zerotouch
+
+  post_tasks:
+    - name: Print access URLs
+      debug:
+        msg:
+          - "✅ ZeroTouch is up!"
+          - "🎯 Target App   → http://{{ ansible_host }}:8000"
+          - "📊 Prometheus   → http://{{ ansible_host }}:9090"
+          - "📈 Grafana      → http://{{ ansible_host }}:3000"
+          - "🐛 Locust       → http://{{ ansible_host }}:8089"
+          - "🧠 MLflow       → http://{{ ansible_host }}:5000"
+          - "🤖 Ollama       → http://{{ ansible_host }}:11434"
+          - "📺 Streamlit    → http://{{ ansible_host }}:8501"
