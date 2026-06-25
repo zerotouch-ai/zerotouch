@@ -20,7 +20,7 @@ resource "aws_key_pair" "zerotouch_key" {
 # ── Security Group ────────────────────────────────────────────────────────────
 resource "aws_security_group" "zerotouch_sg" {
   name        = "zerotouch-sg"
-  description = "ZeroTouch security group — all required ports"
+  description = "ZeroTouch security group - all required ports"
 
   # SSH
   ingress {
@@ -112,6 +112,7 @@ resource "aws_security_group" "zerotouch_sg" {
 resource "aws_instance" "zerotouch" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
+  availability_zone      = "us-east-1a"
   key_name               = aws_key_pair.zerotouch_key.key_name
   vpc_security_group_ids = [aws_security_group.zerotouch_sg.id]
 

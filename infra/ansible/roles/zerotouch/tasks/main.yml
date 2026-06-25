@@ -9,7 +9,7 @@
 
 - name: Copy .env file to instance
   copy:
-    src: "{{ playbook_dir }}/../.env"
+    src: "/home/fakhr001/Desktop/zerotouch/.env"
     dest: /home/ubuntu/zerotouch/.env
     owner: ubuntu
     group: ubuntu
