@@ -1,6 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
-CREATE TABLE IF NOT EXISTS  incidents (
+CREATE TABLE IF NOT EXISTS  incidents
+ (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP DEFAULT NOW(),
     anomaly_type VARCHAR(100),

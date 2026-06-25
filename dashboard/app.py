@@ -17,7 +17,7 @@ st.set_page_config(
 DB_CONFIG = {
     "host": os.getenv("POSTGRES_HOST", "postgres"),
     "port": os.getenv("POSTGRES_PORT", 5432),
-    "dbname": os.getenv("POSTGRES_DB", "zerotuoch"),
+    "dbname": os.getenv("POSTGRES_DB", "zerotouch"),
     "user": os.getenv("POSTGRES_USER", "zerotouch"),
     "password": os.getenv("POSTGRES_PASSWORD", "zerotouch")
 }
@@ -176,7 +176,7 @@ else:
             paper_bgcolor="#0a0e1a",
             font_color="#8899bb",
         )
-        st.plotly_charts(fig2, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True)
 
         # Resolution Time Bar
         st.subheader("Resolution Time per Incident (seconds)")
@@ -192,7 +192,7 @@ else:
             plot_bgcolor="#0a0e1a",
             font_color="#8899bb",
         )
-        st.plotly_charts(fig3, use_container_width=True)
+        st.plotly_chart(fig3, use_container_width=True)
 
         st.divider()
 
