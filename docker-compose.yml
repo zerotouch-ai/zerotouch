@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+
+  target-app:
+    build: ./target-app
+    container_name: target-app
+    ports:
+      - "8000:8000"
+    networks:
+      - zerotouch-network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - zerotouch-network
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - zerotouch-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - zerotouch-network
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=zerotouch
+      - POSTGRES_PASSWORD=zerotouch
+      - POSTGRES_DB=zerotouch
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - zerotouch-network
+
+  locust:
+    image: locustio/locust
+    container_name: locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --host http://target-app:8000
+    networks:
+      - zerotouch-network
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow
+    container_name: mlflow
+    ports:
+      - "5000:5000"
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri postgresql://zerotouch:zerotouch@postgres:5432/zerotouch
+      --default-artifact-root /mlflow/artifacts
+    volumes:
+      - mlflow-artifacts:/mlflow/artifacts
+    depends_on:
+      - postgres
+    networks:
+      - zerotouch-network
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - zerotouch-network
+
+  ml-worker:
+    build: ./ml-worker
+    container_name: ml-worker
+    depends_on:
+      - prometheus
+      - redis
+      - mlflow
+    env_file:
+      - .env
+    networks:
+      - zerotouch-network
+
+  agent:
+    build: ./agent
+    container_name: agent
+    depends_on:
+      - redis
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - zerotouch-network
+
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - zerotouch-network
+
+networks:
+  zerotouch-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mlflow-artifacts:
+  ollama-models:
