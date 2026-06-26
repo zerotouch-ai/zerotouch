@@ -1,0 +1,7 @@
+groq
+redis
+psycopg2-binary
+sentence-transformers
+pgvector
+numpy
+requests
