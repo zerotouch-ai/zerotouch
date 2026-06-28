@@ -138,3 +138,5 @@ resource "aws_eip" "zerotouch_ip" {
     Project = "zerotouch"
   }
 }
+
+# This is just a note - add this ingress block manually inside aws_security_group resource
