@@ -39,7 +39,7 @@ services:
       - zerotouch-network
 
   postgres:
-    image: postgres:15
+    image: pgvector/pgvector:pg15
     container_name: postgres
     ports:
       - "5432:5432"
@@ -70,7 +70,7 @@ services:
     ports:
       - "5000:5000"
     command: >
-      mlflow server
+      mlflow server --gunicorn-opts "--timeout 120" --serve-artifacts
       --host 0.0.0.0
       --port 5000
       --backend-store-uri postgresql://zerotouch:zerotouch@postgres:5432/zerotouch
@@ -107,13 +107,13 @@ services:
   agent:
     build: ./agent
     container_name: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - redis
       - postgres
     env_file:
       - .env
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - zerotouch-network
 
