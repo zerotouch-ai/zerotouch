@@ -17,13 +17,13 @@ mlflow.set_experiment("zerotouch")
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
 
 def detect_cause(vector: dict) -> str:
-    if vector["memory_rate"] > 5:
+    if vector["memory_rate"] > 0.5:
         return "memory_leak"
-    if vector["cpu_max"] > 85:
+    if vector["cpu_max"] > 50:
         return "cpu_spike"
-    if vector["error_rate"] > 10:
+    if vector["error_rate"] > 0.5:
         return "high_error_rate"
-    if vector["latency_p95"] > 1.0:
+    if vector["latency_p95"] > 0.5:
         return "high_latency"
     return "unknown"
 
